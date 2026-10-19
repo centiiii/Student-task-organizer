@@ -17,13 +17,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskList = document.getElementById('task-list');
     const filterInput = document.getElementById('subject-filter');
     const formSubmitButton = form.querySelector('button[type="submit"]');
+    const cancelButton = document.getElementById('cancel-button');
 
     // Update the form submit button text based on edit state
     const updateFormButtonText = () => {
         if (editTaskId !== null) {
             formSubmitButton.textContent = 'Save Changes';
+            cancelButton.style.display = 'inline-block';
         } else {
             formSubmitButton.textContent = 'Add Task';
+            cancelButton.style.display = 'none';
         }
     };
 
@@ -79,14 +82,36 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFormButtonText();
     });
 
+    cancelButton.addEventListener('click', () => {
+        // Clear the form
+        form.reset();
+        // Reset edit state
+        editTaskId = null;
+        // Update button states
+        updateFormButtonText();
+        // Focus on title field for next task
+        document.getElementById('title').focus();
+    });
+
     filterInput.addEventListener('input', () => {
         renderTasks();
     });
+
     function saveTasks() {
         localStorage.setItem('tasks', JSON.stringify(tasks));
     }
 
     function getTodayDateString() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function saveTasks() {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
         const today = new Date();
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, '0');
