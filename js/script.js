@@ -52,8 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             title,
             subject,
             dueDate,
-            priority,
-            completed: false
+            priority
         };
 
         if (editTaskId !== null) {
@@ -131,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Sort tasks by due date: tasks with due date first (ascending), then tasks without due date
-        const sortedTasks = filteredTasks.sort((a, b) => {
+        const sortedTasks = [...filteredTasks].sort((a, b) => {
             // If both have due date, compare by date
             if (a.dueDate && b.dueDate) {
                 return a.dueDate.localeCompare(b.dueDate);
@@ -228,6 +227,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const deleteBtn = document.createElement('button');
             deleteBtn.textContent = 'Delete';
             deleteBtn.addEventListener('click', () => {
+                if (task.id === editTaskId) {
+                    editTaskId = null;
+                    form.reset();
+                    updateFormButtonText();
+                }
                 tasks = tasks.filter(t => t.id !== task.id);
                 saveTasks();
                 renderTasks();
