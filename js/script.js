@@ -1,3 +1,5 @@
+// Student Task Organizer - Main JavaScript
+
 let tasks = [];
 let editTaskId = null; // null means we are adding a new task
 
@@ -56,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if (editTaskId !== null) {
-            // Update existing task
+            // Update existing task - preserve completed status
             const taskIndex = tasks.findIndex(t => t.id === editTaskId);
             if (taskIndex !== -1) {
                 tasks[taskIndex] = { ...tasks[taskIndex], ...taskData };
@@ -108,64 +110,37 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${year}-${month}-${day}`;
     }
 
-    function saveTasks() {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-    }
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
     function renderTasks() {
         const filterValue = filterInput.value.trim().toLowerCase();
 
         // Filter tasks by subject
         let filteredTasks = tasks;
         if (filterValue !== '') {
-            filteredTasks = tasks.filter(task => 
+            filteredTasks = tasks.filter(task =>
                 task.subject.toLowerCase().includes(filterValue)
             );
         }
 
         // Sort tasks by due date: tasks with due date first (ascending), then tasks without due date
         const sortedTasks = [...filteredTasks].sort((a, b) => {
-            // If both have due date, compare by date
-            if (a.dueDate && b.dueDate) {
-                return a.dueDate.localeCompare(b.dueDate);
-            }
-            // If only a has due date, it comes first
-            if (a.dueDate && !b.dueDate) {
-                return -1;
-            }
-            // If only b has due date, it comes first
-            if (!a.dueDate && b.dueDate) {
-                return 1;
-            }
-            // Both have no due date, maintain original order (sort by id as fallback)
+            if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate);
+            if (a.dueDate && !b.dueDate) return -1;
+            if (!a.dueDate && b.dueDate) return 1;
             return a.id - b.id;
         });
 
         taskList.innerHTML = '';
+        const todayStr = getTodayDateString();
+
         sortedTasks.forEach(task => {
             const li = document.createElement('li');
             li.className = 'task-item';
-            if (task.completed) {
-                li.classList.add('done');
-            }
-
-            // Check for overdue or due today (only if not completed and has due date)
-            const todayStr = getTodayDateString();
+            if (task.completed) li.classList.add('done');
             if (!task.completed && task.dueDate) {
-                if (task.dueDate < todayStr) {
-                    li.classList.add('overdue');
-                } else if (task.dueDate === todayStr) {
-                    li.classList.add('due-today');
-                }
+                if (task.dueDate < todayStr) li.classList.add('overdue');
+                else if (task.dueDate === todayStr) li.classList.add('due-today');
             }
 
-            // Checkbox for completion
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.checked = task.completed;
@@ -176,56 +151,72 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             li.appendChild(checkbox);
 
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'task-content';
+
+            const titleLine = document.createElement('div');
+            titleLine.className = 'task-title-line';
             const titleSpan = document.createElement('span');
+            titleSpan.className = 'title-span';
             titleSpan.textContent = task.title;
-            li.appendChild(titleSpan);
+            titleLine.appendChild(titleSpan);
+            contentWrapper.appendChild(titleLine);
+
+            const metaLine = document.createElement('div');
+            metaLine.className = 'task-meta-line';
 
             const subjectSpan = document.createElement('span');
+            subjectSpan.className = 'subject-span';
             subjectSpan.textContent = task.subject;
-            li.appendChild(subjectSpan);
+            metaLine.appendChild(subjectSpan);
 
             const dueDateSpan = document.createElement('span');
+            dueDateSpan.className = 'due-date-span';
             dueDateSpan.textContent = task.dueDate || 'No due date';
-            li.appendChild(dueDateSpan);
+            metaLine.appendChild(dueDateSpan);
 
-            const prioritySpan = document.createElement('span');
-            prioritySpan.textContent = task.priority;
-            li.appendChild(prioritySpan);
-
-            // Status label for overdue/due-today
             if (!task.completed && task.dueDate) {
                 if (task.dueDate < todayStr) {
                     const statusLabel = document.createElement('span');
                     statusLabel.textContent = 'OVERDUE';
-                    statusLabel.className = 'status-label';
-                    li.appendChild(statusLabel);
+                    statusLabel.className = 'status-label overdue';
+                    metaLine.appendChild(statusLabel);
                 } else if (task.dueDate === todayStr) {
                     const statusLabel = document.createElement('span');
                     statusLabel.textContent = 'DUE TODAY';
-                    statusLabel.className = 'status-label';
-                    li.appendChild(statusLabel);
+                    statusLabel.className = 'status-label due-today';
+                    metaLine.appendChild(statusLabel);
                 }
             }
 
-            // Edit button
+            const prioritySpan = document.createElement('span');
+            prioritySpan.className = `priority-span ${task.priority}`;
+            prioritySpan.textContent = task.priority;
+            metaLine.appendChild(prioritySpan);
+
+            contentWrapper.appendChild(metaLine);
+            li.appendChild(contentWrapper);
+
+            const buttonsWrapper = document.createElement('div');
+            buttonsWrapper.className = 'task-buttons';
+
             const editBtn = document.createElement('button');
             editBtn.textContent = 'Edit';
+            editBtn.className = 'edit-btn';
             editBtn.addEventListener('click', () => {
-                // Populate form with task data
                 document.getElementById('title').value = task.title;
                 document.getElementById('subject').value = task.subject;
                 document.getElementById('due-date').value = task.dueDate;
                 document.getElementById('priority').value = task.priority;
                 editTaskId = task.id;
                 updateFormButtonText();
-                // Focus the title input for convenience
                 document.getElementById('title').focus();
             });
-            li.appendChild(editBtn);
+            buttonsWrapper.appendChild(editBtn);
 
-            // Delete button
             const deleteBtn = document.createElement('button');
             deleteBtn.textContent = 'Delete';
+            deleteBtn.className = 'delete-btn';
             deleteBtn.addEventListener('click', () => {
                 if (task.id === editTaskId) {
                     editTaskId = null;
@@ -236,13 +227,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveTasks();
                 renderTasks();
             });
-            li.appendChild(deleteBtn);
+            buttonsWrapper.appendChild(deleteBtn);
 
+            li.appendChild(buttonsWrapper);
             taskList.appendChild(li);
         });
     }
 
-    // Initial render
     renderTasks();
     updateFormButtonText();
 });
