@@ -175,6 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
             dueDateSpan.textContent = task.dueDate || 'No due date';
             metaLine.appendChild(dueDateSpan);
 
+            const prioritySpan = document.createElement('span');
+            prioritySpan.className = `priority-span ${task.priority}`;
+            prioritySpan.textContent = task.priority;
+            metaLine.appendChild(prioritySpan);
+
             if (!task.completed && task.dueDate) {
                 if (task.dueDate < todayStr) {
                     const statusLabel = document.createElement('span');
@@ -188,11 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     metaLine.appendChild(statusLabel);
                 }
             }
-
-            const prioritySpan = document.createElement('span');
-            prioritySpan.className = `priority-span ${task.priority}`;
-            prioritySpan.textContent = task.priority;
-            metaLine.appendChild(prioritySpan);
 
             contentWrapper.appendChild(metaLine);
             li.appendChild(contentWrapper);

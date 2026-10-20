@@ -325,3 +325,22 @@ footer {
 .privacy-content li {
     margin-bottom: 5px;
 }
+
+main {
+    align-items: start;
+}
+
+@media (min-width: 768px) {
+    .task-form {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+    }
+    .task-filter {
+        grid-column: 2;
+        grid-row: 1;
+    }
+    .task-list {
+        grid-column: 2;
+        grid-row: 2;
+    }
+}
