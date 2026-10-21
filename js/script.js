@@ -20,6 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterInput = document.getElementById('subject-filter');
     const formSubmitButton = form.querySelector('button[type="submit"]');
     const cancelButton = document.getElementById('cancel-button');
+    const errorEl = document.getElementById('form-error');
+
+    const titleInput = document.getElementById('title');
+    const subjectInput = document.getElementById('subject');
+
+    function clearFormError() {
+        errorEl.textContent = '';
+        errorEl.style.display = 'none';
+    }
+
+    titleInput.addEventListener('input', clearFormError);
+    subjectInput.addEventListener('input', clearFormError);
 
     // Update the form submit button text based on edit state
     const updateFormButtonText = () => {
@@ -35,8 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        const titleInput = document.getElementById('title');
-        const subjectInput = document.getElementById('subject');
         const dueDateInput = document.getElementById('due-date');
         const priorityInput = document.getElementById('priority');
 
@@ -45,8 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const dueDate = dueDateInput.value;
         const priority = priorityInput.value;
 
-        if (title === '' || subject === '') {
-            alert('Title and subject are required');
+        if (title === '') {
+            errorEl.textContent = 'Title is required';
+            errorEl.style.display = 'block';
+            return;
+        }
+        if (subject === '') {
+            errorEl.textContent = 'Subject is required';
+            errorEl.style.display = 'block';
             return;
         }
 
@@ -80,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveTasks();
         renderTasks();
         form.reset();
+        clearFormError();
         updateFormButtonText();
     });
 

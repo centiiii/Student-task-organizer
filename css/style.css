@@ -106,6 +106,13 @@ main {
     color: #aaa;
 }
 
+#form-error {
+    color: var(--danger-color);
+    margin-top: 10px;
+    display: none;
+    font-size: 14px;
+}
+
 button {
     background-color: var(--primary-color);
     color: white;
