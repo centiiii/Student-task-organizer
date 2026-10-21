@@ -25,6 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const titleInput = document.getElementById('title');
     const subjectInput = document.getElementById('subject');
 
+    const exportBtn = document.getElementById('export-btn');
+    const importBtn = document.getElementById('import-btn');
+    const importFile = document.getElementById('import-file');
+    const backupMessage = document.getElementById('backup-message');
+
+    exportBtn.textContent = 'Export backup';
+    importBtn.textContent = 'Import backup';
+
     function clearFormError() {
         errorEl.textContent = '';
         errorEl.style.display = 'none';
@@ -109,6 +117,56 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFormButtonText();
         // Focus on title field for next task
         document.getElementById('title').focus();
+    });
+
+    // Export backup
+    exportBtn.addEventListener('click', () => {
+        const data = JSON.stringify(tasks, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'tasks-backup.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+
+    // Import backup
+    importBtn.addEventListener('click', () => {
+        importFile.value = '';
+        importFile.click();
+    });
+
+    importFile.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const imported = JSON.parse(event.target.result);
+                if (!Array.isArray(imported)) throw new Error('Not an array');
+                const valid = imported.every(item =>
+                    item && typeof item.id !== 'undefined' &&
+                    typeof item.title === 'string' &&
+                    typeof item.subject === 'string' &&
+                    typeof item.completed === 'boolean'
+                );
+                if (!valid) throw new Error('Invalid items');
+                if (confirm('Replace current tasks with imported data?')) {
+                    tasks = imported;
+                    saveTasks();
+                    renderTasks();
+                    backupMessage.textContent = '';
+                    backupMessage.style.display = 'none';
+                }
+            } catch (err) {
+                backupMessage.textContent = 'Invalid backup file';
+                backupMessage.style.display = 'block';
+            }
+        };
+        reader.readAsText(file);
     });
 
     filterInput.addEventListener('input', () => {

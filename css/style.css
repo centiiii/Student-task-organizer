@@ -303,6 +303,41 @@ button:active {
     border-color: var(--primary-color);
 }
 
+.backup-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fafafa;
+    border-radius: 8px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.backup-section button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.backup-section button:hover {
+    background-color: #2a56c6;
+}
+
+#backup-message {
+    color: var(--danger-color);
+    margin-top: 8px;
+    display: none;
+    font-size: 13px;
+    width: 100%;
+}
+
 footer {
     text-align: center;
     margin-top: 40px;
