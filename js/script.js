@@ -207,6 +207,37 @@ document.addEventListener('DOMContentLoaded', () => {
         taskList.innerHTML = '';
         const todayStr = getTodayDateString();
 
+        // Compute summary counts for unfinished tasks
+        const todayDate = new Date(todayStr + 'T00:00:00');
+        const weekLaterDate = new Date(todayDate);
+        weekLaterDate.setDate(todayDate.getDate() + 7);
+        const weekLaterStr = weekLaterDate.getFullYear() + '-' +
+            String(weekLaterDate.getMonth() + 1).padStart(2, '0') + '-' +
+            String(weekLaterDate.getDate()).padStart(2, '0');
+
+        let overdueCount = 0, dueTodayCount = 0, dueWeekCount = 0;
+        tasks.forEach(t => {
+            if (t.completed) return;
+            if (!t.dueDate) return;
+            if (t.dueDate < todayStr) overdueCount++;
+            else if (t.dueDate === todayStr) dueTodayCount++;
+            else if (t.dueDate > todayStr && t.dueDate <= weekLaterStr) dueWeekCount++;
+        });
+
+        const summaryEl = document.getElementById('task-summary');
+        summaryEl.innerHTML = '';
+        const badgeData = [
+            { count: overdueCount, label: 'Overdue', className: 'overdue' },
+            { count: dueTodayCount, label: 'Due today', className: 'due-today' },
+            { count: dueWeekCount, label: 'Due in 7 days', className: 'due-week' }
+        ];
+        badgeData.forEach(b => {
+            const span = document.createElement('span');
+            span.className = `summary-badge ${b.className}`;
+            span.textContent = `${b.label}: ${b.count}`;
+            summaryEl.appendChild(span);
+        });
+
         sortedTasks.forEach(task => {
             const li = document.createElement('li');
             li.className = 'task-item';

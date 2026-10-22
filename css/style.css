@@ -303,6 +303,34 @@ button:active {
     border-color: var(--primary-color);
 }
 
+.task-summary {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.summary-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+}
+
+.summary-badge.overdue {
+    background-color: var(--danger-color);
+}
+
+.summary-badge.due-today {
+    background-color: var(--warning-color);
+}
+
+.summary-badge.due-week {
+    background-color: var(--primary-color);
+}
+
 .backup-section {
     margin-top: 20px;
     padding: 15px;
