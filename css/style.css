@@ -83,9 +83,9 @@ main {
 
 .task-form, .task-filter, .task-list, .about-content, .privacy-content {
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 30px;
 }
 
 .task-form h2, .task-filter h2, .task-list h2, .about-content h2, .privacy-content h2 {
@@ -156,12 +156,14 @@ button:active {
     align-items: flex-start;
     padding: 15px;
     border-bottom: 1px solid #eee;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
     gap: 15px;
 }
 
 .task-item:hover {
     background-color: #f9f9f9;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .task-item:last-child {
@@ -191,6 +193,7 @@ button:active {
     margin-top: 2px;
     cursor: pointer;
     flex-shrink: 0;
+    accent-color: var(--primary-color);
 }
 
 .task-content {
@@ -442,7 +445,7 @@ main:not(:has(.task-form)) {
     max-width: 800px;
     margin: 0 auto;
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 30px;
 }
