@@ -206,7 +206,11 @@ button:active {
 }
 
 .subject-span {
-    color: #666;
+    background: hsl(var(--subject-hue, 210) 70% 93%);
+    color: hsl(var(--subject-hue, 210) 55% 28%);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

@@ -274,6 +274,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const subjectSpan = document.createElement('span');
             subjectSpan.className = 'subject-span';
             subjectSpan.textContent = task.subject;
+            // compute hue from subject for consistent coloring
+            const normalizedSubject = task.subject.trim().toLowerCase();
+            let hash = 0;
+            for (let i = 0; i < normalizedSubject.length; i++) {
+                hash = (hash * 31 + normalizedSubject.charCodeAt(i)) >>> 0;
+            }
+            const hue = hash % 360;
+            subjectSpan.style.setProperty('--subject-hue', hue);
             metaLine.appendChild(subjectSpan);
 
             const dueDateSpan = document.createElement('span');
