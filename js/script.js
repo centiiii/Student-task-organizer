@@ -207,6 +207,13 @@ document.addEventListener('DOMContentLoaded', () => {
         taskList.innerHTML = '';
         const todayStr = getTodayDateString();
 
+        if (filteredTasks.length === 0) {
+            const li = document.createElement('li');
+            li.className = 'task-empty';
+            li.textContent = tasks.length === 0 ? "No tasks yet. Add your first task!" : "No tasks match this subject.";
+            taskList.appendChild(li);
+        }
+
         // Compute summary counts for unfinished tasks
         const todayDate = new Date(todayStr + 'T00:00:00');
         const weekLaterDate = new Date(todayDate);

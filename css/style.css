@@ -267,6 +267,31 @@ button:active {
     color: #d32f2f;
 }
 
+.priority-span.low::before,
+.priority-span.medium::before,
+.priority-span.high::before {
+    content: "●";
+    margin-right: 4px;
+    font-size: 10px;
+    vertical-align: middle;
+}
+.priority-span.low::before {
+    color: #1976d2;
+}
+.priority-span.medium::before {
+    color: #f57c00;
+}
+.priority-span.high::before {
+    color: #d32f2f;
+}
+
+.task-empty {
+    text-align: center;
+    color: #999;
+    padding: 2rem;
+    list-style: none;
+}
+
 .status-label {
     font-size: 11px;
     padding: 2px 6px;
