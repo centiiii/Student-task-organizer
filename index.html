@@ -57,6 +57,7 @@
                 <h2>Task List</h2>
                 <input type="text" id="subject-filter" placeholder="Filter by subject...">
                 <div id="task-summary" class="task-summary"></div>
+                <button id="clear-completed-btn" type="button" class="clear-completed-btn" style="display:none;"></button>
                 <ul id="task-list"></ul>
             </section>
 
@@ -69,6 +70,8 @@
             </section>
         </section>
     </main>
+
+    <div id="toast" aria-live="polite" style="display:none;"></div>
 
     <footer>
         <p>&copy; 2026 Student Task Organizer. All rights reserved.</p>

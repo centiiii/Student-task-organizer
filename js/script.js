@@ -29,6 +29,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const importBtn = document.getElementById('import-btn');
     const importFile = document.getElementById('import-file');
     const backupMessage = document.getElementById('backup-message');
+    const toast = document.getElementById('toast');
+    const clearBtn = document.getElementById('clear-completed-btn');
+    clearBtn.textContent = 'Clear completed';
+    clearBtn.style.display = 'none';
+
+    let deletedTask = null;
+    let deletedIndex = -1;
+    let toastTimeout = null;
 
     exportBtn.textContent = 'Export backup';
     importBtn.textContent = 'Import backup';
@@ -171,6 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     rebuildSubjectDatalist();
                     backupMessage.textContent = '';
                     backupMessage.style.display = 'none';
+                    hideToast();
                 }
             } catch (err) {
                 backupMessage.textContent = 'Invalid backup file';
@@ -206,6 +215,64 @@ document.addEventListener('DOMContentLoaded', () => {
             datalist.appendChild(opt);
         });
     }
+
+    function hideToast() {
+        toast.style.display = 'none';
+        toast.innerHTML = '';
+        deletedTask = null;
+        deletedIndex = -1;
+        if (toastTimeout) {
+            clearTimeout(toastTimeout);
+            toastTimeout = null;
+        }
+    }
+
+    function showToast(task, index) {
+        deletedTask = task;
+        deletedIndex = index;
+        toast.innerHTML = '';
+        const message = document.createTextNode('Task deleted. ');
+        toast.appendChild(message);
+        const undoBtn = document.createElement('button');
+        undoBtn.textContent = 'Undo';
+        undoBtn.addEventListener('click', undoDelete);
+        toast.appendChild(undoBtn);
+        toast.style.display = 'flex';
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(hideToast, 6000);
+    }
+
+    function undoDelete() {
+        if (deletedTask !== null) {
+            tasks.splice(deletedIndex, 0, deletedTask);
+            saveTasks();
+            renderTasks();
+            rebuildSubjectDatalist();
+            hideToast();
+        }
+    }
+
+    function updateClearButton() {
+        const completedCount = tasks.filter(t => t.completed).length;
+        if (completedCount === 0) {
+            clearBtn.style.display = 'none';
+            clearBtn.disabled = true;
+        } else {
+            clearBtn.style.display = 'inline-block';
+            clearBtn.disabled = false;
+        }
+    }
+clearBtn.addEventListener('click', () => {
+        const completedCount = tasks.filter(t => t.completed).length;
+        if (completedCount === 0) return;
+        if (confirm(`Remove ${completedCount} completed tasks?`)) {
+            tasks = tasks.filter(t => !t.completed);
+            saveTasks();
+            renderTasks();
+            rebuildSubjectDatalist();
+            updateClearButton();
+        }
+    });
 
     function getTodayDateString() {
         const today = new Date();
@@ -278,6 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
             summaryEl.appendChild(span);
         });
 
+updateClearButton();
         sortedTasks.forEach(task => {
             const li = document.createElement('li');
             li.className = 'task-item';
@@ -390,10 +458,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     form.reset();
                     updateFormButtonText();
                 }
-                tasks = tasks.filter(t => t.id !== task.id);
-                saveTasks();
-                renderTasks();
-                rebuildSubjectDatalist();
+                const taskIndex = tasks.findIndex(t => t.id === task.id);
+                if (taskIndex !== -1) {
+                    const removedTask = tasks[taskIndex];
+                    tasks.splice(taskIndex, 1);
+                    saveTasks();
+                    renderTasks();
+                    rebuildSubjectDatalist();
+                    showToast(removedTask, taskIndex);
+                }
             });
             buttonsWrapper.appendChild(deleteBtn);
 
