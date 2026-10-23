@@ -519,3 +519,8 @@ main:not(:has(.task-form)) {
         top: 16px;
     }
 }
+
+header {
+    border-radius: 12px;
+    overflow: hidden;
+}
