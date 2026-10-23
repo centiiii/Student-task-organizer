@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const priorityInput = document.getElementById('priority');
 
         const title = titleInput.value.trim();
-        const subject = subjectInput.value.trim();
+        const rawSubject = subjectInput.value.trim();
         const dueDate = dueDateInput.value;
         const priority = priorityInput.value;
 
@@ -68,11 +68,20 @@ document.addEventListener('DOMContentLoaded', () => {
             errorEl.style.display = 'block';
             return;
         }
-        if (subject === '') {
+        if (rawSubject === '') {
             errorEl.textContent = 'Subject is required';
             errorEl.style.display = 'block';
             return;
         }
+
+        // Normalize subject to existing spelling (case-insensitive)
+        const subjectMap = new Map();
+        tasks.forEach(t => {
+            const low = t.subject.toLowerCase();
+            if (!subjectMap.has(low)) subjectMap.set(low, t.subject);
+        });
+        const lowSub = rawSubject.toLowerCase();
+        const subject = subjectMap.has(lowSub) ? subjectMap.get(lowSub) : rawSubject;
 
         const taskData = {
             title,
@@ -103,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         saveTasks();
         renderTasks();
+        rebuildSubjectDatalist();
         form.reset();
         clearFormError();
         updateFormButtonText();
@@ -158,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     tasks = imported;
                     saveTasks();
                     renderTasks();
+                    rebuildSubjectDatalist();
                     backupMessage.textContent = '';
                     backupMessage.style.display = 'none';
                 }
@@ -175,6 +186,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveTasks() {
         localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function rebuildSubjectDatalist() {
+        const datalist = document.getElementById('subject-list');
+        if (!datalist) return;
+        datalist.innerHTML = '';
+        const seen = new Map();
+        tasks.forEach(task => {
+            const key = task.subject.toLowerCase();
+            if (!seen.has(key)) {
+                seen.set(key, task.subject);
+            }
+        });
+        const subjects = Array.from(seen.values()).sort((a, b) => a.localeCompare(b));
+        subjects.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s;
+            datalist.appendChild(opt);
+        });
     }
 
     function getTodayDateString() {
@@ -363,6 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tasks = tasks.filter(t => t.id !== task.id);
                 saveTasks();
                 renderTasks();
+                rebuildSubjectDatalist();
             });
             buttonsWrapper.appendChild(deleteBtn);
 
@@ -372,5 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     renderTasks();
+    rebuildSubjectDatalist();
     updateFormButtonText();
 });

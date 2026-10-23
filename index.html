@@ -31,7 +31,7 @@
                 </div>
                 <div class="form-group">
                     <label for="subject">Subject:</label>
-                    <input type="text" id="subject" name="subject" required>
+                    <input type="text" id="subject" name="subject" required list="subject-list">
                 </div>
                 <div class="form-group">
                     <label for="due-date">Due Date:</label>
@@ -48,6 +48,7 @@
                 <button type="submit" id="submit-button">Add Task</button>
                 <button type="button" id="cancel-button" style="display: none; margin-left: 10px;">Cancel</button>
             </form>
+            <datalist id="subject-list"></datalist>
             <p id="form-error"></p>
         </section>
 
