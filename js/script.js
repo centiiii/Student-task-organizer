@@ -196,8 +196,11 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         }
 
-        // Sort tasks by due date: tasks with due date first (ascending), then tasks without due date
+        // Sort tasks: unfinished first, then completed; within each group earliest due date first, no due date last
         const sortedTasks = [...filteredTasks].sort((a, b) => {
+            if (a.completed !== b.completed) {
+                return a.completed ? 1 : -1;
+            }
             if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate);
             if (a.dueDate && !b.dueDate) return -1;
             if (!a.dueDate && b.dueDate) return 1;
