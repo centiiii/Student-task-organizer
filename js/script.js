@@ -291,9 +291,22 @@ document.addEventListener('DOMContentLoaded', () => {
             subjectSpan.style.setProperty('--subject-hue', hue);
             metaLine.appendChild(subjectSpan);
 
+            // Helper to format due date for display only
+            const currentYear = new Date().getFullYear();
+            function formatDueDate(iso) {
+                const [year, month, day] = iso.split('-').map(Number);
+                const date = new Date(year, month - 1, day);
+                const options = { month: 'short', day: 'numeric' };
+                let formatted = date.toLocaleDateString('en-US', options);
+                if (date.getFullYear() !== currentYear) {
+                    formatted += `, ${date.getFullYear()}`;
+                }
+                return formatted;
+            }
+
             const dueDateSpan = document.createElement('span');
             dueDateSpan.className = 'due-date-span';
-            dueDateSpan.textContent = task.dueDate || 'No due date';
+            dueDateSpan.textContent = task.dueDate ? formatDueDate(task.dueDate) : 'No due date';
             metaLine.appendChild(dueDateSpan);
 
             const prioritySpan = document.createElement('span');
