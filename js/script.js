@@ -3,6 +3,7 @@
 let tasks = [];
 let editTaskId = null; // null means we are adding a new task
 let statusFilter = 'all'; // 'all' | 'pending' | 'completed'
+let sortMode = 'due'; // 'due' | 'priority' | 'subject' | 'newest'
 
 document.addEventListener('DOMContentLoaded', () => {
     // Load tasks from localStorage
@@ -41,6 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
     clearBtn.style.display = 'none';
 
     const statusFilterButtons = document.querySelectorAll('#status-filters .status-pill');
+
+    const sortSelect = document.getElementById('sort-select');
+    sortSelect.addEventListener('change', () => {
+        sortMode = sortSelect.value;
+        renderTasks();
+    });
 
     let deletedTask = null;
     let deletedIndex = -1;
@@ -484,16 +491,52 @@ clearBtn.addEventListener('click', () => {
             );
         }
 
-        // Sort tasks: unfinished first, then completed; within each group earliest due date first, no due date last
-        const sortedTasks = [...filteredTasks].sort((a, b) => {
-            if (a.completed !== b.completed) {
-                return a.completed ? 1 : -1;
+        // Split into unfinished and completed
+        const pending = filteredTasks.filter(t => !t.completed);
+        const completed = filteredTasks.filter(t => t.completed);
+
+        function compareTasks(a, b) {
+            switch (sortMode) {
+                case 'due':
+                    if (!a.dueDate && !b.dueDate) return a.id - b.id;
+                    if (!a.dueDate) return 1;
+                    if (!b.dueDate) return -1;
+                    const da = new Date(a.dueDate);
+                    const db = new Date(b.dueDate);
+                    if (da.getTime() !== db.getTime()) return da - db;
+                    return a.id - b.id;
+                case 'priority':
+                    const priorityOrder = { high: 0, medium: 1, low: 2 };
+                    const pa = priorityOrder[a.priority] ?? 2;
+                    const pb = priorityOrder[b.priority] ?? 2;
+                    if (pa !== pb) return pa - pb;
+                    if (!a.dueDate && !b.dueDate) return a.id - b.id;
+                    if (!a.dueDate) return 1;
+                    if (!b.dueDate) return -1;
+                    const da2 = new Date(a.dueDate);
+                    const db2 = new Date(b.dueDate);
+                    if (da2.getTime() !== db2.getTime()) return da2 - db2;
+                    return a.id - b.id;
+                case 'subject':
+                    const subjCmp = (a.subject || '').localeCompare(b.subject || '', undefined, { sensitivity: 'base' });
+                    if (subjCmp !== 0) return subjCmp;
+                    if (!a.dueDate && !b.dueDate) return a.id - b.id;
+                    if (!a.dueDate) return 1;
+                    if (!b.dueDate) return -1;
+                    const da3 = new Date(a.dueDate);
+                    const db3 = new Date(b.dueDate);
+                    if (da3.getTime() !== db3.getTime()) return da3 - db3;
+                    return a.id - b.id;
+                case 'newest':
+                    return b.id - a.id;
+                default:
+                    return a.id - b.id;
             }
-            if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate);
-            if (a.dueDate && !b.dueDate) return -1;
-            if (!a.dueDate && b.dueDate) return 1;
-            return a.id - b.id;
-        });
+        }
+
+        pending.sort(compareTasks);
+        completed.sort(compareTasks);
+        const sortedTasks = [...pending, ...completed];
 
         taskList.innerHTML = '';
         const todayStr = getTodayDateString();

@@ -96,6 +96,13 @@
                     <button type="button" data-status="all" aria-pressed="true" class="status-pill active">All tasks</button>
                     <button type="button" data-status="pending" aria-pressed="false" class="status-pill">Pending</button>
                     <button type="button" data-status="completed" aria-pressed="false" class="status-pill">Completed</button>
+                    <label for="sort-select" class="sr-only">Sort by</label>
+                    <select id="sort-select" aria-label="Sort by">
+                        <option value="due" selected>Due date</option>
+                        <option value="priority">Priority</option>
+                        <option value="subject">Subject A-Z</option>
+                        <option value="newest">Newest first</option>
+                    </select>
                 </div>
                 <div id="task-summary" class="task-summary"></div>
                 <button id="clear-completed-btn" type="button" class="clear-completed-btn" style="display:none;"></button>
