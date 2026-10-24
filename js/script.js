@@ -60,6 +60,69 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Update welcome section (greeting, date, subtitle)
+    function updateWelcome() {
+        const greetingEl = document.getElementById('greeting');
+        const dateEl = document.getElementById('today-date');
+        const subtitleEl = document.getElementById('welcome-subtitle');
+        // If none of the elements exist (e.g., on about/privacy pages), do nothing
+        if (!greetingEl && !dateEl && !subtitleEl) return;
+
+        // Greeting based on local hour
+        const hour = new Date().getHours();
+        let greetingText;
+        if (hour >= 5 && hour < 12) greetingText = 'Good morning!';
+        else if (hour >= 12 && hour < 18) greetingText = 'Good afternoon!';
+        else if (hour >= 18 && hour < 22) greetingText = 'Good evening!';
+        else greetingText = 'Working late?';
+
+        const phraseMap = {
+            'Good morning!': 'Ready to start the day?',
+            'Good afternoon!': 'Ready to get things done?',
+            'Good evening!': 'Ready to get things done?',
+            'Working late?': "Let's finish strong."
+        };
+        const fullGreeting = `${greetingText} ${phraseMap[greetingText]}`;
+        if (greetingEl) greetingEl.textContent = fullGreeting;
+
+        // Today's date
+        if (dateEl) {
+            const today = new Date();
+            dateEl.textContent = today.toLocaleDateString(undefined, {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Subtitle based on unfinished tasks
+        if (subtitleEl) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            let overdueCount = 0;
+            let dueTodayCount = 0;
+            let unfinishedTotal = 0;
+            tasks.forEach(t => {
+                if (t.completed) return;
+                unfinishedTotal++;
+                if (!t.dueDate) return;
+                if (t.dueDate < todayStr) overdueCount++;
+                else if (t.dueDate === todayStr) dueTodayCount++;
+            });
+
+            let subtitleText;
+            if (overdueCount > 0) {
+                subtitleText = `You have ${overdueCount} overdue task${overdueCount === 1 ? '' : 's'}. Start with the oldest.`;
+            } else if (dueTodayCount > 0) {
+                subtitleText = `${dueTodayCount} task${dueTodayCount === 1 ? '' : 's'} due today. You've got this.`;
+            } else if (unfinishedTotal === 0) {
+                subtitleText = 'Add your first task to get started.';
+            } else {
+                subtitleText = 'Nothing urgent. A good day to get ahead.';
+            }
+            subtitleEl.textContent = subtitleText;
+        }
+    }
+
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
@@ -500,9 +563,20 @@ updateClearButton();
             li.appendChild(buttonsWrapper);
             taskList.appendChild(li);
         });
+        // Update welcome section after rendering tasks
+        updateWelcome();
     }
 
     renderTasks();
     rebuildSubjectDatalist();
     updateFormButtonText();
+    // Initial welcome update
+    updateWelcome();
+
+    // Refresh welcome when tab becomes visible again
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            updateWelcome();
+        }
+    });
 });

@@ -558,3 +558,43 @@ main:not(:has(.task-form)) {
 .priority-span.low    { color: color-mix(in srgb, var(--success-color) 70%, black); }
 .priority-span.medium { color: color-mix(in srgb, var(--warning-color) 55%, black); }
 .priority-span.high   { color: color-mix(in srgb, var(--danger-color) 85%, black); }
+
+/* Brand line */
+header .brand {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+}
+
+/* Welcome section inside header */
+header .welcome-section {
+    text-align: left;
+    margin-top: 0.5rem;
+}
+
+header .welcome-section #greeting {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.2;
+}
+
+header .welcome-section #today-date {
+    margin: 0.25rem 0 0;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.7);
+}
+
+header .welcome-section #welcome-subtitle {
+    margin: 0.25rem 0 0;
+    font-size: 1rem;
+    color: white;
+}
+
+/* Mobile: center the welcome section */
+@media (max-width: 600px) {
+    header .welcome-section {
+        text-align: center;
+    }
+}
