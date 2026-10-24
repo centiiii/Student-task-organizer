@@ -22,6 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelButton = document.getElementById('cancel-button');
     const errorEl = document.getElementById('form-error');
 
+    const dialog = document.getElementById('task-dialog');
+    const openBtn = document.getElementById('open-add-task');
+    const closeBtn = document.getElementById('dialog-close');
+    const dialogTitle = document.getElementById('dialog-title');
+
     const titleInput = document.getElementById('title');
     const subjectInput = document.getElementById('subject');
 
@@ -53,11 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateFormButtonText = () => {
         if (editTaskId !== null) {
             formSubmitButton.textContent = 'Save Changes';
-            cancelButton.style.display = 'inline-block';
         } else {
             formSubmitButton.textContent = 'Add Task';
-            cancelButton.style.display = 'none';
         }
+        // Cancel button is always visible in the dialog
+        cancelButton.style.display = 'inline-block';
     };
 
     // Update welcome section (greeting, date, subtitle)
@@ -239,20 +244,41 @@ document.addEventListener('DOMContentLoaded', () => {
         saveTasks();
         renderTasks();
         rebuildSubjectDatalist();
-        form.reset();
-        clearFormError();
-        updateFormButtonText();
+        dialog.close();
     });
 
     cancelButton.addEventListener('click', () => {
-        // Clear the form
+        dialog.close();
+    });
+
+    // Dialog open/close handling
+    function resetDialog() {
         form.reset();
-        // Reset edit state
         editTaskId = null;
-        // Update button states
-        updateFormButtonText();
-        // Focus on title field for next task
-        document.getElementById('title').focus();
+        dialogTitle.textContent = 'Add task';
+        formSubmitButton.textContent = 'Add Task';
+        clearFormError();
+    }
+
+    openBtn.addEventListener('click', () => {
+        resetDialog();
+        dialog.showModal();
+        titleInput.focus();
+    });
+
+    closeBtn.addEventListener('click', () => {
+        dialog.close();
+    });
+
+    // Close dialog when clicking backdrop
+    dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) {
+            dialog.close();
+        }
+    });
+
+    dialog.addEventListener('close', () => {
+        resetDialog();
     });
 
     // Export backup
@@ -586,6 +612,8 @@ updateClearButton();
                 document.getElementById('notes').value = task.notes || '';
                 editTaskId = task.id;
                 updateFormButtonText();
+                dialogTitle.textContent = 'Edit task';
+                dialog.showModal();
                 document.getElementById('title').focus();
             });
             buttonsWrapper.appendChild(editBtn);
