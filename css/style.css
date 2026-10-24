@@ -247,6 +247,18 @@ button:active {
     white-space: nowrap;
 }
 
+.relative-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+.relative-date::before {
+    content: "\00a0\00b7\00a0";
+}
+.relative-date.tomorrow {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
 .priority-span {
     text-transform: capitalize;
     background-color: #f0f0f0;

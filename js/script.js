@@ -610,6 +610,29 @@ clearBtn.addEventListener('click', () => {
             dueDateSpan.className = 'due-date-span';
             dueDateSpan.textContent = task.dueDate ? formatDueDate(task.dueDate) : 'No due date';
             metaLine.appendChild(dueDateSpan);
+// Relative due date label for pending tasks with a due date
+            if (!task.completed && task.dueDate) {
+                const [dy, dm, dd] = task.dueDate.split('-').map(Number);
+                const dueUTC = Date.UTC(dy, dm - 1, dd);
+                const [ty, tm, td] = todayStr.split('-').map(Number);
+                const todayUTC = Date.UTC(ty, tm - 1, td);
+                const diff = Math.floor((dueUTC - todayUTC) / 86400000);
+                let relText = '';
+                if (diff < 0) {
+                    const n = -diff;
+                    relText = n === 1 ? '1 day ago' : `${n} days ago`;
+                } else if (diff === 1) {
+                    relText = 'Due tomorrow';
+                } else if (diff >= 2 && diff <= 14) {
+                    relText = `Due in ${diff} days`;
+                }
+                if (relText) {
+                    const relSpan = document.createElement('span');
+                    relSpan.className = 'relative-date' + (diff === 1 ? ' tomorrow' : '');
+                    relSpan.textContent = relText;
+                    metaLine.appendChild(relSpan);
+                }
+            }
 
             const prioritySpan = document.createElement('span');
             prioritySpan.className = `priority-span ${task.priority}`;
@@ -697,10 +720,11 @@ clearBtn.addEventListener('click', () => {
     updateWelcome();
     updateDashboard();
 
-    // Refresh welcome when tab becomes visible again
+    // Refresh welcome and tasks when tab becomes visible again
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
             updateWelcome();
+            renderTasks();
         }
     });
 });
