@@ -208,6 +208,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 progressCaptionEl.textContent = `${done} of ${total} tasks completed`;
             }
         }
+
+        // Next up card
+        const nextUpList = document.getElementById('next-up-list');
+        if (!nextUpList) return; // card not present on this page
+        nextUpList.innerHTML = '';
+        const unfinishedWithDue = tasks.filter(t => !t.completed && t.dueDate);
+        if (unfinishedWithDue.length === 0) {
+            const allUnfinished = tasks.filter(t => !t.completed);
+            const msg = allUnfinished.length === 0
+                ? 'Nothing coming up. Enjoy the break.'
+                : 'Add due dates to see what\'s next.';
+            const li = document.createElement('li');
+            li.className = 'next-up-item';
+            li.textContent = msg;
+            li.style.color = 'var(--text-muted)';
+            li.style.fontStyle = 'italic';
+            nextUpList.appendChild(li);
+        } else {
+            const priorityOrder = { high: 0, medium: 1, low: 2 };
+            unfinishedWithDue.sort((a, b) => {
+                const da = new Date(a.dueDate);
+                const db = new Date(b.dueDate);
+                if (da.getTime() !== db.getTime()) return da - db;
+                const pa = priorityOrder[a.priority] ?? 2;
+                const pb = priorityOrder[b.priority] ?? 2;
+                if (pa !== pb) return pa - pb;
+                return a.id - b.id;
+            });
+            const top = unfinishedWithDue.slice(0, 3);
+            top.forEach(task => {
+                const li = document.createElement('li');
+                li.className = 'next-up-item';
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'next-up-title';
+                titleSpan.textContent = task.title;
+                li.appendChild(titleSpan);
+
+                const subjectSpan = document.createElement('span');
+                subjectSpan.className = 'next-up-subject';
+                subjectSpan.textContent = task.subject;
+                const hue = getSubjectHue(task.subject);
+                subjectSpan.style.setProperty('--subject-hue', hue);
+                li.appendChild(subjectSpan);
+
+                const dueInfo = getDueLabelInfo(task.dueDate);
+                const dueSpan = document.createElement('span');
+                dueSpan.className = 'next-up-due ' + dueInfo.className;
+                dueSpan.textContent = dueInfo.text;
+                li.appendChild(dueSpan);
+
+                nextUpList.appendChild(li);
+            });
+        }
     }
 
     form.addEventListener('submit', (e) => {
@@ -469,6 +523,47 @@ clearBtn.addEventListener('click', () => {
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
+    }
+
+    // Shared helpers for date formatting and subject hue
+    function getSubjectHue(subject) {
+        const normalized = subject.trim().toLowerCase();
+        let hash = 0;
+        for (let i = 0; i < normalized.length; i++) {
+            hash = (hash * 31 + normalized.charCodeAt(i)) >>> 0;
+        }
+        return hash % 360;
+    }
+
+    function formatFriendlyDate(iso) {
+        const [year, month, day] = iso.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        const options = { month: 'short', day: 'numeric' };
+        let formatted = date.toLocaleDateString('en-US', options);
+        const currentYear = new Date().getFullYear();
+        if (date.getFullYear() !== currentYear) {
+            formatted += `, ${date.getFullYear()}`;
+        }
+        return formatted;
+    }
+
+    function getDueLabelInfo(dueDate) {
+        const todayStr = getTodayDateString();
+        if (!dueDate) return { text: '', className: '' };
+        const [dy, dm, dd] = dueDate.split('-').map(Number);
+        const dueUTC = Date.UTC(dy, dm - 1, dd);
+        const [ty, tm, td] = todayStr.split('-').map(Number);
+        const todayUTC = Date.UTC(ty, tm - 1, td);
+        const diff = Math.floor((dueUTC - todayUTC) / 86400000);
+        if (diff < 0) {
+            return { text: 'Overdue', className: 'overdue' };
+        } else if (diff === 0) {
+            return { text: 'Today', className: 'today' };
+        } else if (diff === 1) {
+            return { text: 'Tomorrow', className: 'tomorrow' };
+        } else {
+            return { text: formatFriendlyDate(dueDate), className: 'future' };
+        }
     }
 
     function renderTasks() {
