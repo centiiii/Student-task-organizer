@@ -123,6 +123,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Dashboard statistics
+    function updateDashboard() {
+        const totalEl = document.getElementById('stat-total');
+        const doneEl = document.getElementById('stat-done');
+        const todayEl = document.getElementById('stat-today');
+        const overdueEl = document.getElementById('stat-overdue');
+        if (!totalEl || !doneEl || !todayEl || !overdueEl) return;
+        const todayStr = new Date().toISOString().split('T')[0];
+        const total = tasks.length;
+        const done = tasks.filter(t => t.completed).length;
+        const todayCount = tasks.filter(t => !t.completed && t.dueDate === todayStr).length;
+        const overdueCount = tasks.filter(t => !t.completed && t.dueDate && t.dueDate < todayStr).length;
+        totalEl.textContent = total;
+        doneEl.textContent = done;
+        todayEl.textContent = todayCount;
+        overdueEl.textContent = overdueCount;
+
+        // Progress card
+        const progressMessageEl = document.getElementById('progress-message');
+        const progressPercentEl = document.getElementById('progress-percent');
+        const progressFillEl = document.getElementById('progress-fill');
+        const progressTrackEl = document.getElementById('progress-track');
+        const progressCaptionEl = document.getElementById('progress-caption');
+        if (progressMessageEl && progressPercentEl && progressFillEl && progressTrackEl && progressCaptionEl) {
+            const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+            // Message based on percent
+            let message = '';
+            if (total === 0) {
+                message = 'Add a task to get started';
+            } else if (percent < 25) {
+                message = 'Every task you finish counts';
+            } else if (percent < 75) {
+                message = 'Keep up the momentum';
+            } else if (percent < 100) {
+                message = 'Almost there';
+            } else {
+                message = 'All done. Great work!';
+            }
+            progressMessageEl.textContent = message;
+            progressPercentEl.textContent = `${percent}%`;
+            progressFillEl.style.width = `${percent}%`;
+            progressTrackEl.setAttribute('aria-valuenow', percent);
+            // Caption
+            if (total === 0) {
+                progressCaptionEl.textContent = 'No tasks yet';
+            } else {
+                progressCaptionEl.textContent = `${done} of ${total} tasks completed`;
+            }
+        }
+    }
+
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
@@ -564,6 +615,7 @@ updateClearButton();
             taskList.appendChild(li);
         });
         // Update welcome section after rendering tasks
+        updateDashboard();
         updateWelcome();
     }
 
@@ -572,6 +624,7 @@ updateClearButton();
     updateFormButtonText();
     // Initial welcome update
     updateWelcome();
+    updateDashboard();
 
     // Refresh welcome when tab becomes visible again
     document.addEventListener('visibilitychange', () => {

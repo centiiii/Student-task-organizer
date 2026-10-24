@@ -26,6 +26,53 @@
     </header>
 
     <main>
+        <section class="dashboard" aria-label="Dashboard statistics">
+            <div id="dashboard-stats">
+                <article class="stat-card total">
+                    <div class="icon-label">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+                        <span class="label">TOTAL</span>
+                    </div>
+                    <div class="value" id="stat-total">0</div>
+                    <div class="caption">Tasks tracked</div>
+                </article>
+                <article class="stat-card done">
+                    <div class="icon-label">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                        <span class="label">DONE</span>
+                    </div>
+                    <div class="value" id="stat-done">0</div>
+                    <div class="caption">Tasks completed</div>
+                </article>
+                <article class="stat-card today">
+                    <div class="icon-label">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                        <span class="label">TODAY</span>
+                    </div>
+                    <div class="value" id="stat-today">0</div>
+                    <div class="caption">Due today</div>
+                </article>
+                <article class="stat-card overdue">
+                    <div class="icon-label">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        <span class="label">OVERDUE</span>
+                    </div>
+                    <div class="value" id="stat-overdue">0</div>
+                    <div class="caption">Need attention</div>
+                </article>
+            </div>
+            <article id="progress-card" class="progress-card">
+                <div class="progress-header">
+                    <h2>Your progress</h2>
+                    <p id="progress-message"></p>
+                </div>
+                <div class="progress-percent" id="progress-percent">0%</div>
+                <div id="progress-track" class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <p id="progress-caption" class="progress-caption">No tasks yet</p>
+            </article>
+        </section>
         <section class="task-form">
             <h2>Add Task</h2>
             <form id="task-form">
