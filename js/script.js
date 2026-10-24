@@ -547,7 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function rebuildSubjectDatalist() {
-        const datalist = document.getElementById('subject-list');
+        const datalist = document.getElementById('subject-suggestions');
         if (!datalist) return;
         datalist.innerHTML = '';
         const seen = new Map();
