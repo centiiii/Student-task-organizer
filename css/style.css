@@ -470,7 +470,6 @@ button:active {
     gap: 8px;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
     margin-bottom: 12px;
 }
 .status-pill {
@@ -508,6 +507,7 @@ button:active {
     color: var(--text-muted);
     cursor: pointer;
     transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    margin-left: auto;
 }
 #sort-select:hover,
 #sort-select:focus {
@@ -519,32 +519,27 @@ button:active {
     box-shadow: 0 0 0 3px var(--primary-text);
 }
 
-.task-summary {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-}
-
-.summary-badge {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
+/* Clear completed button */
+#clear-completed-btn,
+.clear-completed-btn {
+    background: transparent;
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
     font-weight: 600;
-    color: white;
-    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
-
-.summary-badge.overdue {
-    background-color: var(--danger-color);
+#clear-completed-btn:hover,
+.clear-completed-btn:hover {
+    background: color-mix(in srgb, var(--danger-color) 12%, var(--surface-color));
 }
-
-.summary-badge.due-today {
-    background-color: var(--warning-color);
-}
-
-.summary-badge.due-week {
-    background-color: var(--primary-color);
+#clear-completed-btn:focus-visible,
+.clear-completed-btn:focus-visible {
+    outline: 2px solid var(--danger-color);
+    outline-offset: 2px;
 }
 
 .backup-section {

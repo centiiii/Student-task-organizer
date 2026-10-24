@@ -873,19 +873,7 @@ clearBtn.addEventListener('click', () => {
             else if (t.dueDate > todayStr && t.dueDate <= weekLaterStr) dueWeekCount++;
         });
 
-        const summaryEl = document.getElementById('task-summary');
-        summaryEl.innerHTML = '';
-        const badgeData = [
-            { count: overdueCount, label: 'Overdue', className: 'overdue' },
-            { count: dueTodayCount, label: 'Due today', className: 'due-today' },
-            { count: dueWeekCount, label: 'Due in 7 days', className: 'due-week' }
-        ];
-        badgeData.forEach(b => {
-            const span = document.createElement('span');
-            span.className = `summary-badge ${b.className}`;
-            span.textContent = `${b.label}: ${b.count}`;
-            summaryEl.appendChild(span);
-        });
+        
 
         updateClearButton();
         sortedTasks.forEach(task => {
