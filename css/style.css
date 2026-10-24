@@ -1307,3 +1307,35 @@ header {
     width: 20px;
     height: 20px;
 }
+
+.task-item:hover {
+    background-color: color-mix(in srgb, var(--primary-color) 7%, var(--surface-color));
+}
+
+/* Row dividers and the Edit/Delete buttons follow the theme */
+.task-item {
+    border-bottom-color: var(--border-color);
+}
+
+.edit-btn,
+.delete-btn {
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+.edit-btn:hover {
+    background-color: var(--primary-soft);
+    border-color: var(--primary-color);
+}
+
+.delete-btn:hover {
+    background-color: color-mix(in srgb, var(--danger-color) 14%, var(--surface-color));
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+/* Search icon: outline in muted color instead of a solid black dot */
+.search-icon {
+    fill: none;
+    color: var(--text-muted);
+}
