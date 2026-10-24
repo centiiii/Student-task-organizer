@@ -161,195 +161,214 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Dashboard statistics
     function updateDashboard() {
-        const totalEl = document.getElementById('stat-total');
-        const doneEl = document.getElementById('stat-done');
-        const todayEl = document.getElementById('stat-today');
-        const overdueEl = document.getElementById('stat-overdue');
-        if (!totalEl || !doneEl || !todayEl || !overdueEl) return;
+        // Common values
         const todayStr = new Date().toISOString().split('T')[0];
         const total = tasks.length;
         const done = tasks.filter(t => t.completed).length;
-        const todayCount = tasks.filter(t => !t.completed && t.dueDate === todayStr).length;
-        const overdueCount = tasks.filter(t => !t.completed && t.dueDate && t.dueDate < todayStr).length;
-        totalEl.textContent = total;
-        doneEl.textContent = done;
-        todayEl.textContent = todayCount;
-        overdueEl.textContent = overdueCount;
+
+        // Stat cards
+        try {
+            const totalEl = document.getElementById('stat-total');
+            const doneEl = document.getElementById('stat-done');
+            const todayEl = document.getElementById('stat-today');
+            const overdueEl = document.getElementById('stat-overdue');
+            if (totalEl && doneEl && todayEl && overdueEl) {
+                const todayCount = tasks.filter(t => !t.completed && t.dueDate === todayStr).length;
+                const overdueCount = tasks.filter(t => !t.completed && t.dueDate && t.dueDate < todayStr).length;
+                totalEl.textContent = total;
+                doneEl.textContent = done;
+                todayEl.textContent = todayCount;
+                overdueEl.textContent = overdueCount;
+            }
+        } catch (e) {
+            console.error('updateDashboard: stat cards error', e);
+        }
 
         // Progress card
-        const progressMessageEl = document.getElementById('progress-message');
-        const progressPercentEl = document.getElementById('progress-percent');
-        const progressFillEl = document.getElementById('progress-fill');
-        const progressTrackEl = document.getElementById('progress-track');
-        const progressCaptionEl = document.getElementById('progress-caption');
-        if (progressMessageEl && progressPercentEl && progressFillEl && progressTrackEl && progressCaptionEl) {
-            const percent = total === 0 ? 0 : Math.round((done / total) * 100);
-            // Message based on percent
-            let message = '';
-            if (total === 0) {
-                message = 'Add a task to get started';
-            } else if (percent < 25) {
-                message = 'Every task you finish counts';
-            } else if (percent < 75) {
-                message = 'Keep up the momentum';
-            } else if (percent < 100) {
-                message = 'Almost there';
-            } else {
-                message = 'All done. Great work!';
+        try {
+            const progressMessageEl = document.getElementById('progress-message');
+            const progressPercentEl = document.getElementById('progress-percent');
+            const progressFillEl = document.getElementById('progress-fill');
+            const progressTrackEl = document.getElementById('progress-track');
+            const progressCaptionEl = document.getElementById('progress-caption');
+            if (progressMessageEl && progressPercentEl && progressFillEl && progressTrackEl && progressCaptionEl) {
+                const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+                let message = '';
+                if (total === 0) {
+                    message = 'Add a task to get started';
+                } else if (percent < 25) {
+                    message = 'Every task you finish counts';
+                } else if (percent < 75) {
+                    message = 'Keep up the momentum';
+                } else if (percent < 100) {
+                    message = 'Almost there';
+                } else {
+                    message = 'All done. Great work!';
+                }
+                progressMessageEl.textContent = message;
+                progressPercentEl.textContent = `${percent}%`;
+                progressFillEl.style.width = `${percent}%`;
+                progressTrackEl.setAttribute('aria-valuenow', percent);
+                if (total === 0) {
+                    progressCaptionEl.textContent = 'No tasks yet';
+                } else {
+                    progressCaptionEl.textContent = `${done} of ${total} tasks completed`;
+                }
             }
-            progressMessageEl.textContent = message;
-            progressPercentEl.textContent = `${percent}%`;
-            progressFillEl.style.width = `${percent}%`;
-            progressTrackEl.setAttribute('aria-valuenow', percent);
-            // Caption
-            if (total === 0) {
-                progressCaptionEl.textContent = 'No tasks yet';
-            } else {
-                progressCaptionEl.textContent = `${done} of ${total} tasks completed`;
-            }
+        } catch (e) {
+            console.error('updateDashboard: progress card error', e);
         }
 
         // Next up card
-        const nextUpList = document.getElementById('next-up-list');
-        if (!nextUpList) return; // card not present on this page
-        nextUpList.innerHTML = '';
-        const unfinishedWithDue = tasks.filter(t => !t.completed && t.dueDate);
-        if (unfinishedWithDue.length === 0) {
-            const allUnfinished = tasks.filter(t => !t.completed);
-            const msg = allUnfinished.length === 0
-                ? 'Nothing coming up. Enjoy the break.'
-                : 'Add due dates to see what\'s next.';
-            const li = document.createElement('li');
-            li.className = 'next-up-item';
-            li.textContent = msg;
-            li.style.color = 'var(--text-muted)';
-            li.style.fontStyle = 'italic';
-            nextUpList.appendChild(li);
-        } else {
-            const priorityOrder = { high: 0, medium: 1, low: 2 };
-            unfinishedWithDue.sort((a, b) => {
-                const da = new Date(a.dueDate);
-                const db = new Date(b.dueDate);
-                if (da.getTime() !== db.getTime()) return da - db;
-                const pa = priorityOrder[a.priority] ?? 2;
-                const pb = priorityOrder[b.priority] ?? 2;
-                if (pa !== pb) return pa - pb;
-                return a.id - b.id;
-            });
-            const top = unfinishedWithDue.slice(0, 3);
-            top.forEach(task => {
-                const li = document.createElement('li');
-                li.className = 'next-up-item';
+        try {
+            const nextUpList = document.getElementById('next-up-list');
+            if (nextUpList) {
+                nextUpList.innerHTML = '';
+                const unfinishedWithDue = tasks.filter(t => !t.completed && t.dueDate);
+                if (unfinishedWithDue.length === 0) {
+                    const allUnfinished = tasks.filter(t => !t.completed);
+                    const msg = allUnfinished.length === 0
+                        ? 'Nothing coming up. Enjoy the break.'
+                        : 'Add due dates to see what\'s next.';
+                    const li = document.createElement('li');
+                    li.className = 'next-up-item';
+                    li.textContent = msg;
+                    li.style.color = 'var(--text-muted)';
+                    li.style.fontStyle = 'italic';
+                    nextUpList.appendChild(li);
+                } else {
+                    const priorityOrder = { high: 0, medium: 1, low: 2 };
+                    unfinishedWithDue.sort((a, b) => {
+                        const da = new Date(a.dueDate);
+                        const db = new Date(b.dueDate);
+                        if (da.getTime() !== db.getTime()) return da - db;
+                        const pa = priorityOrder[a.priority] ?? 2;
+                        const pb = priorityOrder[b.priority] ?? 2;
+                        if (pa !== pb) return pa - pb;
+                        return a.id - b.id;
+                    });
+                    const top = unfinishedWithDue.slice(0, 3);
+                    top.forEach(task => {
+                        const li = document.createElement('li');
+                        li.className = 'next-up-item';
 
-                const titleSpan = document.createElement('span');
-                titleSpan.className = 'next-up-title';
-                titleSpan.textContent = task.title;
-                li.appendChild(titleSpan);
+                        const titleSpan = document.createElement('span');
+                        titleSpan.className = 'next-up-title';
+                        titleSpan.textContent = task.title;
+                        li.appendChild(titleSpan);
 
-                const subjectSpan = document.createElement('span');
-                subjectSpan.className = 'next-up-subject';
-                subjectSpan.textContent = task.subject;
-                const hue = getSubjectHue(task.subject);
-                subjectSpan.style.setProperty('--subject-hue', hue);
-                li.appendChild(subjectSpan);
+                        const subjectSpan = document.createElement('span');
+                        subjectSpan.className = 'next-up-subject';
+                        subjectSpan.textContent = task.subject;
+                        const hue = getSubjectHue(task.subject);
+                        subjectSpan.style.setProperty('--subject-hue', hue);
+                        li.appendChild(subjectSpan);
 
-                const dueInfo = getDueLabelInfo(task.dueDate);
-                const dueSpan = document.createElement('span');
-                dueSpan.className = 'next-up-due ' + dueInfo.className;
-                dueSpan.textContent = dueInfo.text;
-                li.appendChild(dueSpan);
+                        const dueInfo = getDueLabelInfo(task.dueDate);
+                        const dueSpan = document.createElement('span');
+                        dueSpan.className = 'next-up-due ' + dueInfo.className;
+                        dueSpan.textContent = dueInfo.text;
+                        li.appendChild(dueSpan);
 
-                nextUpList.appendChild(li);
-            });
+                        nextUpList.appendChild(li);
+                    });
+                }
+            }
+        } catch (e) {
+            console.error('updateDashboard: next up card error', e);
         }
 
         // Subject card
-        const subjectList = document.getElementById('subject-list');
-        if (subjectList) {
-            // Group tasks by subject (case-insensitive, trimmed), keep first spelling
-            const groups = new Map();
-            tasks.forEach(t => {
-                const key = t.subject.trim().toLowerCase();
-                if (!groups.has(key)) {
-                    groups.set(key, { name: t.subject.trim(), total: 0, done: 0 });
-                }
-                const g = groups.get(key);
-                g.total++;
-                if (t.completed) g.done++;
-            });
-            // Convert to array and sort
-            const subjects = Array.from(groups.values());
-            subjects.sort((a, b) => {
-                if (b.total !== a.total) return b.total - a.total;
-                return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
-            });
-            const maxTotal = subjects.length > 0 ? subjects[0].total : 0;
-            subjectList.innerHTML = '';
-            if (subjects.length === 0) {
-                const li = document.createElement('li');
-                li.textContent = 'No subjects yet. Add a task to see them here.';
-                li.style.color = 'var(--text-muted)';
-                li.style.fontStyle = 'italic';
-                subjectList.appendChild(li);
-            } else {
-                const displayCount = Math.min(5, subjects.length);
-                for (let i = 0; i < displayCount; i++) {
-                    const sub = subjects[i];
-                    const li = document.createElement('li');
-                    // Row head with name and meta
-                    const rowHead = document.createElement('div');
-                    rowHead.className = 'subject-row-head';
-                    const nameSpan = document.createElement('span');
-                    nameSpan.className = 'subject-name';
-                    nameSpan.textContent = sub.name;
-                    const metaDiv = document.createElement('div');
-                    metaDiv.className = 'subject-meta';
-                    const countSpan = document.createElement('span');
-                    countSpan.className = 'subject-count';
-                    const taskWord = sub.total === 1 ? 'task' : 'tasks';
-                    countSpan.textContent = `${sub.total} ${taskWord}`;
-                    const doneSpan = document.createElement('span');
-                    doneSpan.className = 'subject-done';
-                    if (sub.done === 0) {
-                        doneSpan.textContent = '0 done';
-                        doneSpan.classList.add('zero');
-                    } else if (sub.done === sub.total) {
-                        doneSpan.textContent = 'All done';
-                        doneSpan.classList.add('all');
-                    } else {
-                        doneSpan.textContent = `${sub.done} done`;
-                        doneSpan.classList.add('partial');
+        try {
+            const subjectList = document.getElementById('subject-list');
+            if (subjectList) {
+                // Group tasks by subject (case-insensitive, trimmed), keep first spelling
+                const groups = new Map();
+                tasks.forEach(t => {
+                    const key = t.subject.trim().toLowerCase();
+                    if (!groups.has(key)) {
+                        groups.set(key, { name: t.subject.trim(), total: 0, done: 0 });
                     }
-                    metaDiv.appendChild(countSpan);
-                    metaDiv.appendChild(doneSpan);
-                    rowHead.appendChild(nameSpan);
-                    rowHead.appendChild(metaDiv);
-                    li.appendChild(rowHead);
-                    // bar
-                    const track = document.createElement('div');
-                    track.className = 'subject-bar-track';
-                    track.setAttribute('role', 'img');
-                    track.setAttribute('aria-label', `${sub.name}: ${sub.total} ${taskWord}, ${sub.done} done`);
-                    const hue = getSubjectHue(sub.name);
-                    track.style.setProperty('--subject-hue', hue);
-                    const fill = document.createElement('div');
-                    fill.className = 'subject-bar-fill';
-                    const pct = maxTotal > 0 ? (sub.total / maxTotal) * 100 : 0;
-                    fill.style.width = `${pct}%`;
-                    track.appendChild(fill);
-                    li.appendChild(track);
-                    subjectList.appendChild(li);
-                }
-                if (subjects.length > 5) {
-                    const more = subjects.length - 5;
+                    const g = groups.get(key);
+                    g.total++;
+                    if (t.completed) g.done++;
+                });
+                // Convert to array and sort
+                const subjects = Array.from(groups.values());
+                subjects.sort((a, b) => {
+                    if (b.total !== a.total) return b.total - a.total;
+                    return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+                });
+                const maxTotal = subjects.length > 0 ? subjects[0].total : 0;
+                subjectList.innerHTML = '';
+                if (subjects.length === 0) {
                     const li = document.createElement('li');
-                    li.className = 'subject-more';
-                    li.textContent = `+${more} more subjects`;
+                    li.textContent = 'No subjects yet. Add a task to see them here.';
                     li.style.color = 'var(--text-muted)';
                     li.style.fontStyle = 'italic';
                     subjectList.appendChild(li);
+                } else {
+                    const displayCount = Math.min(5, subjects.length);
+                    for (let i = 0; i < displayCount; i++) {
+                        const sub = subjects[i];
+                        const li = document.createElement('li');
+                        // Row head with name and meta
+                        const rowHead = document.createElement('div');
+                        rowHead.className = 'subject-row-head';
+                        const nameSpan = document.createElement('span');
+                        nameSpan.className = 'subject-name';
+                        nameSpan.textContent = sub.name;
+                        const metaDiv = document.createElement('div');
+                        metaDiv.className = 'subject-meta';
+                        const countSpan = document.createElement('span');
+                        countSpan.className = 'subject-count';
+                        const taskWord = sub.total === 1 ? 'task' : 'tasks';
+                        countSpan.textContent = `${sub.total} ${taskWord}`;
+                        const doneSpan = document.createElement('span');
+                        doneSpan.className = 'subject-done';
+                        if (sub.done === 0) {
+                            doneSpan.textContent = '0 done';
+                            doneSpan.classList.add('zero');
+                        } else if (sub.done === sub.total) {
+                            doneSpan.textContent = 'All done';
+                            doneSpan.classList.add('all');
+                        } else {
+                            doneSpan.textContent = `${sub.done} done`;
+                            doneSpan.classList.add('partial');
+                        }
+                        metaDiv.appendChild(countSpan);
+                        metaDiv.appendChild(doneSpan);
+                        rowHead.appendChild(nameSpan);
+                        rowHead.appendChild(metaDiv);
+                        li.appendChild(rowHead);
+                        // bar
+                        const track = document.createElement('div');
+                        track.className = 'subject-bar-track';
+                        track.setAttribute('role', 'img');
+                        track.setAttribute('aria-label', `${sub.name}: ${sub.total} ${taskWord}, ${sub.done} done`);
+                        const hue = getSubjectHue(sub.name);
+                        track.style.setProperty('--subject-hue', hue);
+                        const fill = document.createElement('div');
+                        fill.className = 'subject-bar-fill';
+                        const pct = maxTotal > 0 ? (sub.total / maxTotal) * 100 : 0;
+                        fill.style.width = `${pct}%`;
+                        track.appendChild(fill);
+                        li.appendChild(track);
+                        subjectList.appendChild(li);
+                    }
+                    if (subjects.length > 5) {
+                        const more = subjects.length - 5;
+                        const li = document.createElement('li');
+                        li.className = 'subject-more';
+                        li.textContent = `+${more} more subjects`;
+                        li.style.color = 'var(--text-muted)';
+                        li.style.fontStyle = 'italic';
+                        subjectList.appendChild(li);
+                    }
                 }
             }
+        } catch (e) {
+            console.error('updateDashboard: subject card error', e);
         }
     }
 
@@ -417,7 +436,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         saveTasks();
         renderTasks();
-        rebuildSubjectDatalist();
         dialog.close();
     });
 
@@ -508,7 +526,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     tasks = sanitized;
                     saveTasks();
                     renderTasks();
-                    rebuildSubjectDatalist();
                     backupMessage.textContent = '';
                     backupMessage.style.display = 'none';
                     hideToast();
@@ -579,7 +596,6 @@ document.addEventListener('DOMContentLoaded', () => {
             tasks.splice(deletedIndex, 0, deletedTask);
             saveTasks();
             renderTasks();
-            rebuildSubjectDatalist();
             hideToast();
         }
     }
@@ -601,7 +617,6 @@ clearBtn.addEventListener('click', () => {
             tasks = tasks.filter(t => !t.completed);
             saveTasks();
             renderTasks();
-            rebuildSubjectDatalist();
             updateClearButton();
         }
     });
@@ -926,7 +941,6 @@ clearBtn.addEventListener('click', () => {
                     tasks.splice(taskIndex, 1);
                     saveTasks();
                     renderTasks();
-                    rebuildSubjectDatalist();
                     showToast(removedTask, taskIndex);
                 }
             });
@@ -937,6 +951,7 @@ clearBtn.addEventListener('click', () => {
         });
         // Update welcome section after rendering tasks
         updateDashboard();
+        rebuildSubjectDatalist();
         updateWelcome();
     }
 
