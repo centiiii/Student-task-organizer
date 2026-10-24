@@ -6,3 +6,6 @@ Version 1 features:
 - Save tasks in localStorage
 Planned files: index.html, style.css, script.js
 Planned pages: Home (task organizer), About, Privacy Policy
+Subject suggestions while typing (datalist)
+Undo delete and Clear completed
+Optional notes field per task (max 200 characters)

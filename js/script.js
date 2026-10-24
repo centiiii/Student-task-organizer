@@ -65,11 +65,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const dueDateInput = document.getElementById('due-date');
         const priorityInput = document.getElementById('priority');
+        const notesInput = document.getElementById('notes');
 
         const title = titleInput.value.trim();
         const rawSubject = subjectInput.value.trim();
         const dueDate = dueDateInput.value;
         const priority = priorityInput.value;
+        const notes = notesInput.value.trim();
 
         if (title === '') {
             errorEl.textContent = 'Title is required';
@@ -95,7 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
             title,
             subject,
             dueDate,
-            priority
+            priority,
+            notes
         };
 
         if (editTaskId !== null) {
@@ -113,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 subject,
                 dueDate,
                 priority,
+                notes,
                 completed: false
             };
             tasks.push(task);
@@ -172,8 +176,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     typeof item.completed === 'boolean'
                 );
                 if (!valid) throw new Error('Invalid items');
+                // Sanitize notes for each task
+                const sanitized = imported.map(item => {
+                    let notes = '';
+                    if (Object.prototype.hasOwnProperty.call(item, 'notes')) {
+                        const raw = item.notes;
+                        if (typeof raw === 'string' || typeof raw === 'number') {
+                            notes = String(raw).trim();
+                        } else {
+                            notes = '';
+                        }
+                        if (notes.length > 200) notes = notes.slice(0, 200);
+                    }
+                    return { ...item, notes };
+                });
                 if (confirm('Replace current tasks with imported data?')) {
-                    tasks = imported;
+                    tasks = sanitized;
                     saveTasks();
                     renderTasks();
                     rebuildSubjectDatalist();
@@ -430,6 +448,14 @@ updateClearButton();
             }
 
             contentWrapper.appendChild(metaLine);
+            // Display notes if present
+            if (task.notes && task.notes.trim() !== '') {
+                const notesEl = document.createElement('p');
+                notesEl.className = 'task-notes';
+                notesEl.textContent = task.notes;
+                notesEl.title = task.notes;
+                contentWrapper.appendChild(notesEl);
+            }
             li.appendChild(contentWrapper);
 
             const buttonsWrapper = document.createElement('div');
@@ -443,6 +469,7 @@ updateClearButton();
                 document.getElementById('subject').value = task.subject;
                 document.getElementById('due-date').value = task.dueDate;
                 document.getElementById('priority').value = task.priority;
+                document.getElementById('notes').value = task.notes || '';
                 editTaskId = task.id;
                 updateFormButtonText();
                 document.getElementById('title').focus();
