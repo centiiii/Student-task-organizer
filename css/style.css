@@ -1253,3 +1253,57 @@ dialog[open] {
         transition: none;
     }
 }
+
+/* Use theme tokens instead of literal white */
+.task-form, .task-filter, .task-list, .about-content, .privacy-content,
+.backup-section,
+main:not(:has(.task-form)) {
+    background: var(--surface-color);
+    color: var(--text-color);
+}
+
+.subject-done.partial {
+    background: color-mix(in srgb, var(--success-color) 14%, var(--surface-color));
+}
+
+/* The home page's main is not a card */
+main:has(.dashboard) {
+    background: transparent;
+    box-shadow: none;
+    padding: 0 16px;
+}
+
+/* Theme toggle: top-right corner of the banner */
+header {
+    position: relative;
+}
+
+#theme-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+#theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+#theme-toggle:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+#theme-toggle svg {
+    width: 20px;
+    height: 20px;
+}
