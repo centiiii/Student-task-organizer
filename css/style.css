@@ -358,18 +358,69 @@ button:active {
     border-color: var(--primary-color);
 }
 
-#subject-filter {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
+/* Search filter */
+.filter-search {
+    position: relative;
     margin-bottom: 12px;
 }
-
-#subject-filter:focus {
+.filter-search .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+#subject-filter {
+    width: 100%;
+    padding: 12px 12px 12px 44px;
+    border: none;
+    border-radius: 12px;
+    background: var(--primary-soft);
+    font-size: 16px;
+    color: var(--text-color);
     outline: none;
-    border-color: var(--primary-color);
+    transition: box-shadow 0.15s ease;
+}
+#subject-filter::placeholder {
+    color: var(--text-muted);
+}
+#subject-filter:focus {
+    box-shadow: 0 0 0 3px var(--primary-color);
+}
+
+/* Status filter pills */
+#status-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+.status-pill {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 999px;
+    background: var(--bg-color);
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.status-pill:hover {
+    background: var(--border-color);
+}
+.status-pill:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--primary-color);
+}
+.status-pill.active,
+.status-pill[aria-pressed="true"] {
+    background: var(--primary-soft);
+    color: var(--primary-color);
+    font-weight: 700;
 }
 
 .task-summary {

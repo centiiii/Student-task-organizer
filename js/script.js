@@ -2,6 +2,7 @@
 
 let tasks = [];
 let editTaskId = null; // null means we are adding a new task
+let statusFilter = 'all'; // 'all' | 'pending' | 'completed'
 
 document.addEventListener('DOMContentLoaded', () => {
     // Load tasks from localStorage
@@ -39,9 +40,32 @@ document.addEventListener('DOMContentLoaded', () => {
     clearBtn.textContent = 'Clear completed';
     clearBtn.style.display = 'none';
 
+    const statusFilterButtons = document.querySelectorAll('#status-filters .status-pill');
+
     let deletedTask = null;
     let deletedIndex = -1;
     let toastTimeout = null;
+
+    // Status filter pills click handling
+    statusFilterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            statusFilter = btn.dataset.status;
+            statusFilterButtons.forEach(b => {
+                const isActive = b.dataset.status === statusFilter;
+                b.classList.toggle('active', isActive);
+                b.setAttribute('aria-pressed', isActive);
+            });
+            renderTasks();
+        });
+    });
+
+    // Escape key clears search
+    filterInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            filterInput.value = '';
+            renderTasks();
+        }
+    });
 
     exportBtn.textContent = 'Export backup';
     importBtn.textContent = 'Import backup';
@@ -441,13 +465,22 @@ clearBtn.addEventListener('click', () => {
     }
 
     function renderTasks() {
-        const filterValue = filterInput.value.trim().toLowerCase();
+        const searchValue = filterInput.value.trim().toLowerCase();
 
-        // Filter tasks by subject
+        // Apply status filter
         let filteredTasks = tasks;
-        if (filterValue !== '') {
-            filteredTasks = tasks.filter(task =>
-                task.subject.toLowerCase().includes(filterValue)
+        if (statusFilter === 'pending') {
+            filteredTasks = filteredTasks.filter(t => !t.completed);
+        } else if (statusFilter === 'completed') {
+            filteredTasks = filteredTasks.filter(t => t.completed);
+        }
+
+        // Apply search filter across title, subject, notes
+        if (searchValue !== '') {
+            filteredTasks = filteredTasks.filter(task =>
+                task.title.toLowerCase().includes(searchValue) ||
+                task.subject.toLowerCase().includes(searchValue) ||
+                (task.notes || '').toLowerCase().includes(searchValue)
             );
         }
 
@@ -466,13 +499,23 @@ clearBtn.addEventListener('click', () => {
         const todayStr = getTodayDateString();
 
         if (filteredTasks.length === 0) {
+            let message;
+            if (tasks.length === 0) {
+                message = "No tasks yet. Add your first task!";
+            } else if (statusFilter === 'pending' && searchValue === '') {
+                message = "Nothing pending. Nice work!";
+            } else if (statusFilter === 'completed' && searchValue === '') {
+                message = "No completed tasks yet.";
+            } else {
+                message = "No tasks match your search.";
+            }
             const li = document.createElement('li');
             li.className = 'task-empty';
-            li.textContent = tasks.length === 0 ? "No tasks yet. Add your first task!" : "No tasks match this subject.";
+            li.textContent = message;
             taskList.appendChild(li);
         }
 
-        // Compute summary counts for unfinished tasks
+        // Compute summary counts for unfinished tasks (unchanged, based on all tasks)
         const todayDate = new Date(todayStr + 'T00:00:00');
         const weekLaterDate = new Date(todayDate);
         weekLaterDate.setDate(todayDate.getDate() + 7);
@@ -503,7 +546,7 @@ clearBtn.addEventListener('click', () => {
             summaryEl.appendChild(span);
         });
 
-updateClearButton();
+        updateClearButton();
         sortedTasks.forEach(task => {
             const li = document.createElement('li');
             li.className = 'task-item';

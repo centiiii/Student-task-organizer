@@ -85,7 +85,18 @@
                         Add task
                     </button>
                 </div>
-                <input type="text" id="subject-filter" placeholder="Filter by subject...">
+                <div class="filter-search">
+                    <svg class="search-icon" aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    <input type="search" id="subject-filter" placeholder="Search tasks or subjects..." aria-label="Search tasks or subjects">
+                </div>
+                <div id="status-filters" role="group" aria-label="Task status filters">
+                    <button type="button" data-status="all" aria-pressed="true" class="status-pill active">All tasks</button>
+                    <button type="button" data-status="pending" aria-pressed="false" class="status-pill">Pending</button>
+                    <button type="button" data-status="completed" aria-pressed="false" class="status-pill">Completed</button>
+                </div>
                 <div id="task-summary" class="task-summary"></div>
                 <button id="clear-completed-btn" type="button" class="clear-completed-btn" style="display:none;"></button>
                 <ul id="task-list"></ul>
