@@ -262,6 +262,80 @@ document.addEventListener('DOMContentLoaded', () => {
                 nextUpList.appendChild(li);
             });
         }
+
+        // Subject card
+        const subjectList = document.getElementById('subject-list');
+        if (subjectList) {
+            // Group tasks by subject (case-insensitive, trimmed), keep first spelling
+            const groups = new Map();
+            tasks.forEach(t => {
+                const key = t.subject.trim().toLowerCase();
+                if (!groups.has(key)) {
+                    groups.set(key, { name: t.subject.trim(), total: 0, done: 0 });
+                }
+                const g = groups.get(key);
+                g.total++;
+                if (t.completed) g.done++;
+            });
+            // Convert to array and sort
+            const subjects = Array.from(groups.values());
+            subjects.sort((a, b) => {
+                if (b.total !== a.total) return b.total - a.total;
+                return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+            });
+            const maxTotal = subjects.length > 0 ? subjects[0].total : 0;
+            subjectList.innerHTML = '';
+            if (subjects.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = 'No subjects yet. Add a task to see them here.';
+                li.style.color = 'var(--text-muted)';
+                li.style.fontStyle = 'italic';
+                subjectList.appendChild(li);
+            } else {
+                const displayCount = Math.min(5, subjects.length);
+                for (let i = 0; i < displayCount; i++) {
+                    const sub = subjects[i];
+                    const li = document.createElement('li');
+                    li.className = 'subject-item';
+                    // name and count line
+                    const header = document.createElement('div');
+                    header.className = 'subject-item-header';
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'subject-name';
+                    nameSpan.textContent = sub.name;
+                    const countSpan = document.createElement('span');
+                    countSpan.className = 'subject-count';
+                    const taskWord = sub.total === 1 ? 'task' : 'tasks';
+                    countSpan.textContent = `${sub.total} ${taskWord}, ${sub.done} done`;
+                    header.appendChild(nameSpan);
+                    header.appendChild(countSpan);
+                    li.appendChild(header);
+                    // bar
+                    const track = document.createElement('div');
+                    track.className = 'subject-bar-track';
+                    track.setAttribute('role', 'img');
+                    track.setAttribute('aria-label', `${sub.name}: ${sub.total} ${taskWord}, ${sub.done} done`);
+                    const hue = getSubjectHue(sub.name);
+                    track.style.setProperty('--subject-hue', hue);
+                    const fill = document.createElement('div');
+                    fill.className = 'subject-bar-fill';
+                    const pct = maxTotal > 0 ? (sub.total / maxTotal) * 100 : 0;
+                    fill.style.width = `${pct}%`;
+                    track.appendChild(fill);
+                    li.appendChild(track);
+                    subjectList.appendChild(li);
+                }
+                if (subjects.length > 5) {
+                    const more = subjects.length - 5;
+                    const li = document.createElement('li');
+                    li.className = 'subject-more';
+                    li.textContent = `+${more} more subjects`;
+                    li.style.color = 'var(--text-muted)';
+                    li.style.fontStyle = 'italic';
+                    subjectList.appendChild(li);
+                }
+            }
+        }
     }
 
     form.addEventListener('submit', (e) => {
