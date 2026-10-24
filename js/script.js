@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportBtn = document.getElementById('export-btn');
     const importBtn = document.getElementById('import-btn');
     const importFile = document.getElementById('import-file');
+    const exportIcsBtn = document.getElementById('export-ics-btn');
     const backupMessage = document.getElementById('backup-message');
     const toast = document.getElementById('toast');
     const clearBtn = document.getElementById('clear-completed-btn');
@@ -80,6 +81,82 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearFormError() {
         errorEl.textContent = '';
         errorEl.style.display = 'none';
+    }
+
+    // iCalendar helpers
+    function escapeIcsText(text) {
+        if (text === undefined || text === null) return '';
+        let s = String(text);
+        s = s.replace(/\\/g, '\\\\');
+        s = s.replace(/;/g, '\\;');
+        s = s.replace(/,/g, '\\,');
+        s = s.replace(/\r/g, '');
+        s = s.replace(/\n/g, '\\n');
+        return s;
+    }
+
+    function foldIcsLine(line) {
+        const MAX_BYTES = 73;
+        const encoder = new TextEncoder();
+        let result = '';
+        let byteCount = 0;
+        for (let i = 0; i < line.length; i++) {
+            const ch = line[i];
+            const byteLen = encoder.encode(ch).length;
+            if (byteCount + byteLen > MAX_BYTES) {
+                result += '\r\n ';
+                byteCount = 1; // space character
+            }
+            result += ch;
+            byteCount += byteLen;
+        }
+        return result;
+    }
+
+    function buildIcs() {
+        const lines = [];
+        lines.push('BEGIN:VCALENDAR');
+        lines.push('VERSION:2.0');
+        lines.push('PRODID:-//Student Task Organizer//EN');
+        lines.push('CALSCALE:GREGORIAN');
+        tasks.forEach(task => {
+            if (task.completed) return;
+            if (!task.dueDate) return;
+            const uid = `${task.id}@student-task-organizer`;
+            const dtstamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            const due = task.dueDate;
+            const dtstart = due.replace(/-/g, '');
+            const [year, month, day] = due.split('-').map(Number);
+            const nextDay = new Date(Date.UTC(year, month - 1, day + 1));
+            const dtend = nextDay.getUTCFullYear().toString().padStart(4, '0')
+                + (nextDay.getUTCMonth() + 1).toString().padStart(2, '0')
+                + nextDay.getUTCDate().toString().padStart(2, '0');
+            const summary = escapeIcsText(task.title);
+            const priorityMap = { low: 'Low', medium: 'Medium', high: 'High' };
+            const priorityLabel = priorityMap[task.priority] || 'Low';
+            let description = `Subject: ${escapeIcsText(task.subject)}\\nPriority: ${escapeIcsText(priorityLabel)}`;
+            if (task.notes && task.notes.trim() !== '') {
+                description += `\\nNotes: ${escapeIcsText(task.notes)}`;
+            }
+            const categories = escapeIcsText(task.subject);
+            const vevent = [
+                'BEGIN:VEVENT',
+                `UID:${uid}`,
+                `DTSTAMP:${dtstamp}`,
+                `DTSTART;VALUE=DATE:${dtstart}`,
+                `DTEND;VALUE=DATE:${dtend}`,
+                `SUMMARY:${summary}`,
+                `DESCRIPTION:${description}`,
+                `CATEGORIES:${categories}`,
+                'TRANSP:TRANSPARENT',
+                'END:VEVENT'
+            ];
+            vevent.forEach(l => lines.push(l));
+        });
+        lines.push('END:VCALENDAR');
+        // Fold each line and join with CRLF, ensure final CRLF
+        const folded = lines.map(l => foldIcsLine(l));
+        return folded.join('\r\n') + '\r\n';
     }
 
     titleInput.addEventListener('input', clearFormError);
@@ -491,6 +568,28 @@ document.addEventListener('DOMContentLoaded', () => {
     importBtn.addEventListener('click', () => {
         importFile.value = '';
         importFile.click();
+    });
+
+    // Export deadlines as .ics
+    exportIcsBtn.addEventListener('click', () => {
+        const eligible = tasks.filter(t => !t.completed && t.dueDate);
+        if (eligible.length === 0) {
+            backupMessage.textContent = 'No unfinished tasks with due dates to export.';
+            backupMessage.style.display = 'block';
+            return;
+        }
+        backupMessage.textContent = '';
+        backupMessage.style.display = 'none';
+        const icsContent = buildIcs();
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'task-deadlines.ics';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     });
 
     importFile.addEventListener('change', (e) => {
