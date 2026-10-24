@@ -1,5 +1,5 @@
 // Change CACHE_VERSION whenever you add or rename files in the precache list.
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = 'task-organizer-' + CACHE_VERSION;
 
 const PRECACHE_URLS = [
