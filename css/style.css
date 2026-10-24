@@ -1,10 +1,15 @@
 :root {
-    --bg-color: #F7F8FA;
-    --text-color: #1F2933;
-    --primary-color: #3B6EF5;
-    --success-color: #2FA36B;
-    --warning-color: #E0A100;
-    --danger-color: #D64545;
+    --bg-color: #F5F7FB;
+    --surface-color: #FFFFFF;
+    --border-color: #E3E8F2;
+    --text-color: #1F2937;
+    --text-muted: #6B7280;
+    --primary-color: #4F46E5;
+    --primary-hover: #4338CA;
+    --primary-soft: #EEF0FF;
+    --success-color: #16A34A;
+    --warning-color: #F59E0B;
+    --danger-color: #DC2626;
 }
 
 * {
@@ -231,18 +236,6 @@ button:active {
     gap: 10px;
     font-size: 13px;
     color: #666;
-}
-
-.task-notes {
-    margin: 0;
-    font-size: 12px;
-    color: #888;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.4;
 }
 
 .subject-span {
@@ -544,7 +537,7 @@ header {
 }
 
 #task-form #cancel-button {
-    margin: 10px 0 0 0 !important;
+    margin: 10px 0 0 0;
     width: 100%;
     background: transparent;
     color: var(--primary-color);
@@ -555,54 +548,13 @@ header {
 #cancel-button:focus-visible {
     background: rgba(59, 110, 245, 0.08);
 }
-/* Toast notification */
-#toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: 8px;
-    display: none;
-    align-items: center;
-    gap: 12px;
-    z-index: 1000;
-    font-size: 14px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+
+.task-form, .task-filter, .task-list, .about-content, .privacy-content,
+main:not(:has(.task-form)) {
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--text-color) 6%, transparent),
+                0 4px 12px color-mix(in srgb, var(--text-color) 6%, transparent);
 }
 
-#toast button {
-    background: transparent;
-    border: 1px solid #fff;
-    color: #fff;
-    padding: 4px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-#toast button:hover {
-    background: rgba(255,255,255,0.2);
-}
-
-/* Clear completed button */
-.clear-completed-btn {
-    background: transparent;
-    color: var(--danger-color);
-    border: 1px solid var(--danger-color);
-    padding: 4px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    margin-left: 8px;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.clear-completed-btn:hover {
-    background: var(--danger-color);
-    color: #fff;
-}
+.priority-span.low    { color: color-mix(in srgb, var(--success-color) 70%, black); }
+.priority-span.medium { color: color-mix(in srgb, var(--warning-color) 55%, black); }
+.priority-span.high   { color: color-mix(in srgb, var(--danger-color) 85%, black); }
