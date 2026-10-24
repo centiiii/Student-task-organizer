@@ -296,20 +296,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 for (let i = 0; i < displayCount; i++) {
                     const sub = subjects[i];
                     const li = document.createElement('li');
-                    li.className = 'subject-item';
-                    // name and count line
-                    const header = document.createElement('div');
-                    header.className = 'subject-item-header';
+                    // Row head with name and meta
+                    const rowHead = document.createElement('div');
+                    rowHead.className = 'subject-row-head';
                     const nameSpan = document.createElement('span');
                     nameSpan.className = 'subject-name';
                     nameSpan.textContent = sub.name;
+                    const metaDiv = document.createElement('div');
+                    metaDiv.className = 'subject-meta';
                     const countSpan = document.createElement('span');
                     countSpan.className = 'subject-count';
                     const taskWord = sub.total === 1 ? 'task' : 'tasks';
-                    countSpan.textContent = `${sub.total} ${taskWord}, ${sub.done} done`;
-                    header.appendChild(nameSpan);
-                    header.appendChild(countSpan);
-                    li.appendChild(header);
+                    countSpan.textContent = `${sub.total} ${taskWord}`;
+                    const doneSpan = document.createElement('span');
+                    doneSpan.className = 'subject-done';
+                    if (sub.done === 0) {
+                        doneSpan.textContent = '0 done';
+                        doneSpan.classList.add('zero');
+                    } else if (sub.done === sub.total) {
+                        doneSpan.textContent = 'All done';
+                        doneSpan.classList.add('all');
+                    } else {
+                        doneSpan.textContent = `${sub.done} done`;
+                        doneSpan.classList.add('partial');
+                    }
+                    metaDiv.appendChild(countSpan);
+                    metaDiv.appendChild(doneSpan);
+                    rowHead.appendChild(nameSpan);
+                    rowHead.appendChild(metaDiv);
+                    li.appendChild(rowHead);
                     // bar
                     const track = document.createElement('div');
                     track.className = 'subject-bar-track';
