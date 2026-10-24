@@ -11,6 +11,8 @@
     --warning-color: #F59E0B;
     --danger-color: #DC2626;
     --primary-text: #4F46E5;
+    --subject-bg-l: 93%;
+    --subject-fg-l: 28%;
 }
 
 :root[data-theme="dark"] {
@@ -27,6 +29,8 @@
     --warning-color: #FBBF24;
     --danger-color: #EF4444;
     --primary-text: #A5B4FC;
+    --subject-bg-l: 24%;
+    --subject-fg-l: 82%;
 }
 
 /* Screen-reader only utility */
@@ -182,7 +186,7 @@ main {
 }
 
 .form-group input::placeholder {
-    color: #aaa;
+    color: var(--text-muted);
 }
 
 #form-error {
@@ -255,6 +259,7 @@ button:active {
     cursor: pointer;
     flex-shrink: 0;
     accent-color: var(--primary-color);
+    accent-color: var(--primary-color);
 }
 
 .task-content {
@@ -288,8 +293,8 @@ button:active {
 }
 
 .subject-span {
-    background: hsl(var(--subject-hue, 210) 70% 93%);
-    color: hsl(var(--subject-hue, 210) 55% 28%);
+    background: hsl(var(--subject-hue, 210) 70% var(--subject-bg-l));
+    color: hsl(var(--subject-hue, 210) 55% var(--subject-fg-l));
     padding: 2px 8px;
     border-radius: 999px;
     font-size: 12px;
@@ -651,6 +656,7 @@ main:not(:has(.task-form)) {
 
 .task-item input[type="checkbox"] {
     margin-top: 4px;
+    accent-color: var(--primary-color);
 }
 
 @media (min-width: 768px) {
@@ -926,7 +932,7 @@ header .welcome-section #welcome-subtitle {
 .subject-bar-track {
     height: 8px;
     border-radius: 9999px;
-    background: hsl(var(--subject-hue), 70%, 93%);
+    background: hsl(var(--subject-hue), 70%, var(--subject-bg-l));
     overflow: hidden;
 }
 .subject-bar-fill {
@@ -1045,7 +1051,7 @@ dialog {
 }
 
 dialog::backdrop {
-    background: rgba(0, 0, 0, 0.3);
+    background: color-mix(in srgb, var(--bg-color) 30%, transparent);
 }
 
 @keyframes dialog-in {
@@ -1085,7 +1091,7 @@ dialog[open] {
 }
 
 #task-dialog::backdrop {
-    background: rgba(31, 41, 55, 0.45);
+    background: color-mix(in srgb, var(--bg-color) 45%, transparent);
 }
 
 #task-dialog textarea {
@@ -1224,10 +1230,7 @@ dialog[open] {
     color: var(--text-muted);
 }
 
-.subject-done.partial {
-    background: color-mix(in srgb, var(--success-color) 14%, white);
-    color: color-mix(in srgb, var(--success-color) 30%, black);
-}
+
 
 .subject-done.all {
     background: var(--success-color);
@@ -1238,7 +1241,7 @@ dialog[open] {
     height: 8px;
     border-radius: 999px;
     overflow: hidden;
-    background: hsl(var(--subject-hue, 210) 70% 93%);
+    background: hsl(var(--subject-hue, 210) 70% var(--subject-bg-l));
 }
 
 .subject-bar-fill {
@@ -1338,4 +1341,21 @@ header {
 .search-icon {
     fill: none;
     color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    body,
+    .task-form,
+    .task-filter,
+    .task-list,
+    .about-content,
+    .privacy-content,
+    .backup-section,
+    .next-up-card,
+    .subject-card,
+    input,
+    select,
+    textarea {
+        transition: background-color 150ms ease, color 150ms ease;
+    }
 }
